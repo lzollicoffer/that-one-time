@@ -58,16 +58,17 @@ export function EventCard({ event, onExpand }: EventCardProps) {
         style={{
           backgroundColor: 'var(--color-surface)',
           borderRadius: 'var(--radius-event-card)',
-          padding: '31px 32px 32px',
+          padding: isBroad && event.imageUrl ? '24px 32px 40px' : '31px 32px 32px',
         }}
       >
         {/* Image — broad events only, desaturated */}
         {isBroad && event.imageUrl && (
           <div
-            className="relative w-full overflow-hidden mb-6"
+            className="relative w-full overflow-hidden"
             style={{
               borderRadius: 'var(--radius-event-card-image)',
               height: '216px',
+              marginBottom: '16px',
             }}
           >
             <img
@@ -103,7 +104,7 @@ export function EventCard({ event, onExpand }: EventCardProps) {
         </p>
 
         {/* Expand Details CTA — centered */}
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center" style={{ marginTop: '16px' }}>
           <button
             onClick={() => onExpand(event)}
             className="flex items-center gap-1 transition-opacity active:opacity-70"

@@ -83,8 +83,6 @@ export function EventDetailSheet({
     }
   };
 
-  const sheetHeight = expanded ? '85vh' : '45vh';
-
   return (
     <AnimatePresence>
       {event && (
@@ -100,15 +98,14 @@ export function EventDetailSheet({
             onClick={onClose}
           />
 
-          {/* Sheet */}
+          {/* Sheet — height fits content, capped at 85vh, scrollable beyond */}
           <motion.div
             className="fixed inset-x-0 bottom-0 z-50 flex flex-col"
             style={{
               backgroundColor: 'var(--color-surface)',
               borderRadius: '24px 24px 0 0',
-              height: sheetHeight,
-              maxHeight: '95vh',
-              transition: 'height 250ms ease-out',
+              maxHeight: expanded ? '85vh' : '50vh',
+              transition: 'max-height 250ms ease-out',
             }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
