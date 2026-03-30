@@ -1,7 +1,6 @@
 'use client';
 
 import { Timeline } from '@/types/timeline';
-import { BookmarkButton } from '@/components/ui/bookmark-button';
 
 /**
  * Timeline Header — That One Time
@@ -9,20 +8,13 @@ import { BookmarkButton } from '@/components/ui/bookmark-button';
  *
  * Full-width hero image at top of timeline view (~487px tall).
  * Warm gradient overlay with title and subtitle bottom-aligned, centered.
- * Bookmark icon in top-right corner.
  */
 
 interface TimelineHeaderProps {
   timeline: Timeline;
-  isBookmarked?: boolean;
-  onToggleBookmark?: () => void;
 }
 
-export function TimelineHeader({
-  timeline,
-  isBookmarked = false,
-  onToggleBookmark,
-}: TimelineHeaderProps) {
+export function TimelineHeader({ timeline }: TimelineHeaderProps) {
   return (
     <div
       className="relative w-full overflow-hidden"
@@ -43,21 +35,6 @@ export function TimelineHeader({
             'linear-gradient(0deg, rgba(63,38,29,0.48) 24%, rgba(248,133,79,0.48) 79%)',
         }}
       />
-
-      {/* Bookmark button — top-right */}
-      {onToggleBookmark && (
-        <div
-          className="absolute z-10"
-          style={{ top: '80px', right: '20px' }}
-        >
-          <BookmarkButton
-            isBookmarked={isBookmarked}
-            onToggle={onToggleBookmark}
-            size={28}
-            color="#FFFFFF"
-          />
-        </div>
-      )}
 
       {/* Content — bottom-aligned, centered */}
       <div

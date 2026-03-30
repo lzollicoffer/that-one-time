@@ -64,12 +64,13 @@ export function BrowseCard({
             }}
           />
 
-          {/* Date Pill — bottom-left of image */}
+          {/* Date Pill + Title — bottom-left of image, pill then title with 8px gap */}
           <div
-            className="absolute"
+            className="absolute flex flex-col items-start"
             style={{
-              bottom: '60px',
+              bottom: '16px',
               left: '20px',
+              right: '20px',
             }}
           >
             <span
@@ -82,21 +83,11 @@ export function BrowseCard({
                 letterSpacing: '1px',
                 textTransform: 'uppercase',
                 lineHeight: '15px',
+                marginBottom: '8px',
               }}
             >
               {timeSpan}
             </span>
-          </div>
-
-          {/* Title — bottom of image, above gradient */}
-          <div
-            className="absolute"
-            style={{
-              bottom: '16px',
-              left: '20px',
-              right: '20px',
-            }}
-          >
             <h2
               className="text-white"
               style={{

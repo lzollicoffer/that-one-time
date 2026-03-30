@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { NavBar } from '@/components/ui/nav-bar';
 import { TimelineHeader } from '@/components/timeline/timeline-header';
@@ -9,10 +9,7 @@ import { TimelineEventList } from '@/components/timeline/timeline-event-list';
 import { EventDetailSheet } from '@/components/timeline/event-detail-sheet';
 import { EntityListSheet } from '@/components/timeline/entity-list-sheet';
 import { ScrollToTop } from '@/components/timeline/scroll-to-top';
-import { AuthModal } from '@/components/auth/auth-modal';
 import { TimelineEvent } from '@/types/timeline';
-import { useAuthStore } from '@/stores/auth-store';
-import { useBookmarkStore } from '@/stores/bookmark-store';
 import {
   PALESTINE_ISRAEL_TIMELINE,
   PALESTINE_ISRAEL_EVENTS,
@@ -47,46 +44,10 @@ export default function TimelinePage() {
   const timeline = PALESTINE_ISRAEL_TIMELINE;
   const events = PALESTINE_ISRAEL_EVENTS;
 
-  const user = useAuthStore((s) => s.user);
-  const {
-    bookmarkedTimelines,
-    bookmarkedEvents,
-    toggleTimelineBookmark,
-    toggleEventBookmark,
-    fetchBookmarks,
-  } = useBookmarkStore();
-
   const [activePill, setActivePill] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(
     null
   );
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      fetchBookmarks();
-    }
-  }, [user, fetchBookmarks]);
-
-  const handleTimelineBookmark = () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-    toggleTimelineBookmark(timeline.id);
-  };
-
-  const handleEventBookmark = (eventId: string) => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-    toggleEventBookmark(eventId);
-  };
-
-  const isEventBookmarked = (eventId: string) => {
-    return bookmarkedEvents.has(eventId);
-  };
 
   const activeEntities = useMemo(() => {
     if (!activePill) return [];
@@ -131,11 +92,7 @@ export default function TimelinePage() {
       <NavBar />
 
       {/* Timeline Header Hero */}
-      <TimelineHeader
-        timeline={timeline}
-        isBookmarked={bookmarkedTimelines.has(timeline.id)}
-        onToggleBookmark={handleTimelineBookmark}
-      />
+      <TimelineHeader timeline={timeline} />
 
       {/* Entity Pill Bar — sticky */}
       <EntityPillBar activePill={activePill} onPillClick={handlePillClick} />
@@ -152,15 +109,6 @@ export default function TimelinePage() {
         events={events}
         onClose={handleCloseSheet}
         onNavigate={handleNavigateEvent}
-        isEventBookmarked={isEventBookmarked}
-        onToggleEventBookmark={handleEventBookmark}
-      />
-
-      {/* Auth Modal — shown when guest tries to bookmark */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        defaultMode="signup"
       />
 
       {/* Entity List Bottom Sheet (Books / Podcasts / Movies) */}

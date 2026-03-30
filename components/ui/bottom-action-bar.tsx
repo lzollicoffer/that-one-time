@@ -11,13 +11,12 @@
 
 interface BottomActionBarProps {
   onClose: () => void;
-  onExplore?: () => void;
 }
 
-export function BottomActionBar({ onClose, onExplore }: BottomActionBarProps) {
+export function BottomActionBar({ onClose }: BottomActionBarProps) {
   return (
     <div
-      className="sticky bottom-0 left-0 right-0 flex items-center justify-between"
+      className="sticky bottom-0 left-0 right-0 flex items-center justify-center"
       style={{
         backgroundColor: 'var(--color-surface)',
         borderTop: '1px solid var(--color-card-border)',
@@ -25,7 +24,6 @@ export function BottomActionBar({ onClose, onExplore }: BottomActionBarProps) {
         height: '64px',
       }}
     >
-      {/* CLOSE READER — text button */}
       <button
         onClick={onClose}
         style={{
@@ -41,26 +39,6 @@ export function BottomActionBar({ onClose, onExplore }: BottomActionBarProps) {
         }}
       >
         Close Reader
-      </button>
-
-      {/* EXPLORE THIS ERA — filled pill button */}
-      <button
-        onClick={onExplore}
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: '12px',
-          fontWeight: 700,
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
-          color: '#FFFFFF',
-          backgroundColor: 'var(--color-primary-cta)',
-          borderRadius: 'var(--radius-pill)',
-          padding: '12px 14px',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-      >
-        Explore This Era
       </button>
     </div>
   );

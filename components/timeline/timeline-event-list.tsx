@@ -41,16 +41,16 @@ export function TimelineEventList({
       <div className="flex flex-col" style={{ gap: '40px' }}>
         {events.map((event) => (
           <div key={event.id} className="relative flex items-start">
-            {/* Node dot */}
+            {/* Node dot — centered on the 3px spine at left: 23px */}
             <div
               className="absolute shrink-0"
               style={{
-                left: '-7px',
+                left: '-13.5px',
                 top: '12px',
                 width: '16px',
                 height: '16px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--color-node)',
+                backgroundColor: 'var(--color-divider)',
                 zIndex: 1,
               }}
             />

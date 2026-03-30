@@ -5,7 +5,6 @@ import {
   Work_Sans,
   Manrope,
 } from "next/font/google";
-import { AuthProvider } from "@/components/auth/auth-provider";
 import { ServiceWorkerRegister } from "@/components/sw-register";
 import "./globals.css";
 
@@ -92,7 +91,7 @@ export default function RootLayout({
       className={`${philosopher.variable} ${newsreader.variable} ${workSans.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-black">
-        <AuthProvider>{children}</AuthProvider>
+        {children}
         <ServiceWorkerRegister />
       </body>
     </html>

@@ -102,8 +102,8 @@ export default function LandingPage({
         <div
           className="absolute bottom-0 left-0 right-0 pointer-events-none"
           style={{
-            height: '120px',
-            background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.6) 50%, #FFFFFF 100%)',
+            height: '200px',
+            background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.85) 60%, #FFFFFF 100%)',
             zIndex: 25,
           }}
         />

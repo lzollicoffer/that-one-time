@@ -4,7 +4,6 @@ import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { TimelineEvent } from '@/types/timeline';
 import { BottomActionBar } from '@/components/ui/bottom-action-bar';
-import { BookmarkButton } from '@/components/ui/bookmark-button';
 
 /**
  * Event Detail Bottom Sheet (Deep Dive) — That One Time
@@ -17,7 +16,6 @@ import { BookmarkButton } from '@/components/ui/bookmark-button';
  * - Yellow bullet dots (#FFCC00, 24px) with content blocks
  * - Optional inline images with context labels
  * - Sticky bottom action bar
- * - Bookmark button in top-right
  *
  * Framer Motion: slide up, < 300ms, dismiss via swipe down or tap overlay.
  */
@@ -27,8 +25,6 @@ interface EventDetailSheetProps {
   events: TimelineEvent[];
   onClose: () => void;
   onNavigate: (event: TimelineEvent) => void;
-  isEventBookmarked?: (eventId: string) => boolean;
-  onToggleEventBookmark?: (eventId: string) => void;
 }
 
 export function EventDetailSheet({
@@ -36,8 +32,6 @@ export function EventDetailSheet({
   events,
   onClose,
   onNavigate,
-  isEventBookmarked,
-  onToggleEventBookmark,
 }: EventDetailSheetProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -115,21 +109,6 @@ export function EventDetailSheet({
                 }}
               />
             </div>
-
-            {/* Bookmark button — top-right of sheet */}
-            {isEventBookmarked && onToggleEventBookmark && event && (
-              <div
-                className="absolute shrink-0"
-                style={{ top: '16px', right: '20px', zIndex: 1 }}
-              >
-                <BookmarkButton
-                  isBookmarked={isEventBookmarked(event.id)}
-                  onToggle={() => onToggleEventBookmark(event.id)}
-                  size={22}
-                  color="var(--color-text-primary)"
-                />
-              </div>
-            )}
 
             {/* Scrollable content */}
             <div
@@ -252,8 +231,8 @@ export function EventDetailSheet({
 
               {/* Navigation carets */}
               <div
-                className="flex items-center justify-between mt-8 mb-4"
-                style={{ padding: '0 4px' }}
+                className="flex items-center justify-between"
+                style={{ padding: '6px 4px', marginTop: '32px' }}
               >
                 {hasPrev ? (
                   <button
