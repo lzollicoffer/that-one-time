@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { NavBar } from '@/components/ui/nav-bar';
 import { TimelineHeader } from '@/components/timeline/timeline-header';
@@ -9,59 +9,59 @@ import { TimelineEventList } from '@/components/timeline/timeline-event-list';
 import { EventDetailSheet } from '@/components/timeline/event-detail-sheet';
 import { EntityListSheet } from '@/components/timeline/entity-list-sheet';
 import { ScrollToTop } from '@/components/timeline/scroll-to-top';
-import { TimelineEvent } from '@/types/timeline';
-import {
-  PALESTINE_ISRAEL_TIMELINE,
-  PALESTINE_ISRAEL_EVENTS,
-} from '@/lib/api/mock-timeline-data';
-import {
-  PALESTINE_ISRAEL_BOOKS,
-  PALESTINE_ISRAEL_PODCASTS,
-  PALESTINE_ISRAEL_MOVIES,
-} from '@/lib/api/mock-entity-data';
+import { Timeline, TimelineEvent, TimelineEntity } from '@/types/timeline';
 
 /**
  * Timeline View Page — That One Time
- * Story 1.2 — View Timeline
- * Story 1.3 — View Event Detail (Peek State / Deep Dive)
- * Story 1.5 — Navigate Between Events
- *
- * Acceptance Criteria:
- * - Vertical event list with spine/connector and circular nodes
- * - Broad events: year range, title, preview, image, "expand details"
- * - Specific events: text only, "expand details"
- * - Timeline header: full-width image with title, time span, gradient
- * - Entity pills (Books, Podcasts, Movies) sticky below header
- * - Scroll-to-top button
- * - Bottom sheet on "Expand Details" tap
+ * Fetches timeline, events, and entities from the database via /api/timelines/[slug].
+ * Event images uploaded via admin CMS display on broad event cards.
  */
 
 export default function TimelinePage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  // For now, only the Palestine-Israel timeline is available
-  const timeline = PALESTINE_ISRAEL_TIMELINE;
-  const events = PALESTINE_ISRAEL_EVENTS;
+  const [timeline, setTimeline] = useState<Timeline | null>(null);
+  const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [entities, setEntities] = useState<TimelineEntity[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [activePill, setActivePill] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(
-    null
-  );
+  const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/timelines/${slug}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          setTimeline({
+            id: data.timeline.id,
+            slug: data.timeline.slug,
+            title: data.timeline.title,
+            subtitle: data.timeline.subtitle || '',
+            period: `${data.timeline.time_span_start}–${data.timeline.time_span_end}`,
+            coverImageUrl: data.timeline.cover_image_url || '',
+            description: data.timeline.browse_description || '',
+            tags: [],
+            status: data.timeline.status,
+          });
+          setEvents(data.events);
+          setEntities(data.entities);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [slug]);
 
   const activeEntities = useMemo(() => {
     if (!activePill) return [];
-    switch (activePill) {
-      case 'Books':
-        return PALESTINE_ISRAEL_BOOKS;
-      case 'Podcasts':
-        return PALESTINE_ISRAEL_PODCASTS;
-      case 'Movies':
-        return PALESTINE_ISRAEL_MOVIES;
-      default:
-        return [];
-    }
-  }, [activePill]);
+    const typeMap: Record<string, string> = {
+      Books: 'book',
+      Podcasts: 'podcast',
+      Movies: 'movie',
+    };
+    return entities.filter((e) => e.entityType === typeMap[activePill]);
+  }, [activePill, entities]);
 
   const handlePillClick = (pill: string) => {
     setActivePill(activePill === pill ? null : pill);
@@ -71,47 +71,60 @@ export default function TimelinePage() {
     setActivePill(null);
   };
 
-  const handleExpandEvent = (event: TimelineEvent) => {
-    setSelectedEvent(event);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+        <NavBar />
+        <div className="flex items-center justify-center" style={{ padding: '120px 30px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'var(--color-text-body)' }}>
+            Loading timeline...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleCloseSheet = () => {
-    setSelectedEvent(null);
-  };
-
-  const handleNavigateEvent = (event: TimelineEvent) => {
-    setSelectedEvent(event);
-  };
+  if (!timeline) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+        <NavBar />
+        <div className="flex flex-col items-center justify-center text-center" style={{ padding: '120px 30px' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+            Timeline not found
+          </p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'var(--color-text-body)', marginTop: '8px' }}>
+            This timeline may not exist or hasn&apos;t been published yet.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: 'var(--color-background)' }}
-    >
-      {/* Nav Bar */}
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <NavBar />
-
-      {/* Timeline Header Hero */}
       <TimelineHeader timeline={timeline} />
-
-      {/* Entity Pill Bar — sticky */}
       <EntityPillBar activePill={activePill} onPillClick={handlePillClick} />
 
-      {/* Timeline Events with Spine */}
-      <TimelineEventList events={events} onExpandEvent={handleExpandEvent} />
+      {events.length > 0 ? (
+        <TimelineEventList events={events} onExpandEvent={setSelectedEvent} />
+      ) : (
+        <div className="text-center" style={{ padding: '60px 30px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'var(--color-text-body)' }}>
+            Events are coming soon for this timeline.
+          </p>
+        </div>
+      )}
 
-      {/* Scroll-to-Top Button */}
       <ScrollToTop />
 
-      {/* Event Detail Bottom Sheet */}
       <EventDetailSheet
         event={selectedEvent}
         events={events}
-        onClose={handleCloseSheet}
-        onNavigate={handleNavigateEvent}
+        onClose={() => setSelectedEvent(null)}
+        onNavigate={setSelectedEvent}
       />
 
-      {/* Entity List Bottom Sheet (Books / Podcasts / Movies) */}
       <EntityListSheet
         entityType={activePill}
         entities={activeEntities}

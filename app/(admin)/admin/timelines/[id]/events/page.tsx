@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { ImageUploader } from '@/components/admin/shared/image-uploader';
 
 /**
  * Event Management Page — Admin CMS
@@ -16,6 +17,7 @@ interface AdminEvent {
   title: string;
   date_display: string;
   preview_text: string;
+  preview_image_url: string | null;
   sort_order: number;
 }
 
@@ -35,6 +37,10 @@ export default function EventsPage() {
   const [editingEvent, setEditingEvent] = useState<string | null>(null);
   const [bulletEditor, setBulletEditor] = useState<string | null>(null);
   const [bullets, setBullets] = useState<BulletItem[]>([]);
+  const [imageEditor, setImageEditor] = useState<string | null>(null);
+  const [pendingImageUrl, setPendingImageUrl] = useState<string>('');
+  const [imageSaving, setImageSaving] = useState(false);
+  const [imageSaved, setImageSaved] = useState(false);
 
   // New event form
   const [newEvent, setNewEvent] = useState({
@@ -124,6 +130,36 @@ export default function EventsPage() {
     setBullets([]);
   };
 
+  const openImageEditor = (eventId: string, currentUrl: string | null) => {
+    setImageEditor(eventId);
+    setPendingImageUrl(currentUrl || '');
+    setImageSaved(false);
+  };
+
+  const saveImage = async () => {
+    if (!imageEditor) return;
+    setImageSaving(true);
+    setImageSaved(false);
+
+    const res = await fetch(`/api/admin/events/${imageEditor}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ preview_image_url: pendingImageUrl || null }),
+    });
+
+    if (res.ok) {
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === imageEditor
+            ? { ...e, preview_image_url: pendingImageUrl || null }
+            : e
+        )
+      );
+      setImageSaved(true);
+    }
+    setImageSaving(false);
+  };
+
   const inputStyle = {
     fontFamily: 'var(--font-body)' as const,
     fontSize: '14px',
@@ -203,7 +239,12 @@ export default function EventsPage() {
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#999' }}>{evt.date_display}</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  {evt.event_type === 'broad' && (
+                    <button onClick={() => imageEditor === evt.id ? setImageEditor(null) : openImageEditor(evt.id, evt.preview_image_url)} style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, color: evt.preview_image_url ? '#2E7D32' : 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                      {evt.preview_image_url ? 'Image ✓' : 'Image'}
+                    </button>
+                  )}
                   <button onClick={() => openBulletEditor(evt.id)} style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer' }}>
                     Bullets
                   </button>
@@ -212,6 +253,50 @@ export default function EventsPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Inline image uploader for broad events */}
+              {imageEditor === evt.id && evt.event_type === 'broad' && (
+                <div style={{ padding: '16px', marginTop: '4px', backgroundColor: '#F0F7FF', borderRadius: '10px', border: '1px solid #BBDEFB' }}>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, color: '#666', marginBottom: '8px' }}>
+                    Event Card Image
+                  </p>
+                  <ImageUploader
+                    label="Preview image (shown on timeline card)"
+                    value={pendingImageUrl}
+                    onChange={(url) => { setPendingImageUrl(url); setImageSaved(false); }}
+                  />
+                  <div className="flex gap-2 mt-3 items-center">
+                    <button
+                      onClick={saveImage}
+                      disabled={imageSaving}
+                      style={{
+                        fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700,
+                        padding: '8px 20px', borderRadius: '6px',
+                        backgroundColor: 'var(--color-primary)', color: '#fff',
+                        border: 'none', cursor: imageSaving ? 'not-allowed' : 'pointer',
+                        opacity: imageSaving ? 0.5 : 1,
+                      }}
+                    >
+                      {imageSaving ? 'Saving...' : 'Save Image'}
+                    </button>
+                    <button
+                      onClick={() => setImageEditor(null)}
+                      style={{
+                        fontFamily: 'var(--font-body)', fontSize: '12px',
+                        padding: '8px 16px', borderRadius: '6px',
+                        border: '1px solid #ddd', cursor: 'pointer', backgroundColor: '#fff',
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    {imageSaved && (
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#2E7D32' }}>
+                        Saved
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Inline bullet editor */}
               {bulletEditor === evt.id && (
