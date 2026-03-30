@@ -35,6 +35,8 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ title: '', date_display: '', preview_text: '', event_type: '' });
+  const [editSaving, setEditSaving] = useState(false);
   const [bulletEditor, setBulletEditor] = useState<string | null>(null);
   const [bullets, setBullets] = useState<BulletItem[]>([]);
   const [imageEditor, setImageEditor] = useState<string | null>(null);
@@ -128,6 +130,35 @@ export default function EventsPage() {
     }
     setBulletEditor(null);
     setBullets([]);
+  };
+
+  const openEditEvent = (evt: AdminEvent) => {
+    setEditingEvent(evt.id);
+    setEditForm({
+      title: evt.title,
+      date_display: evt.date_display,
+      preview_text: evt.preview_text || '',
+      event_type: evt.event_type,
+    });
+  };
+
+  const saveEditEvent = async () => {
+    if (!editingEvent) return;
+    setEditSaving(true);
+    const res = await fetch(`/api/admin/events/${editingEvent}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editForm),
+    });
+    if (res.ok) {
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === editingEvent ? { ...e, ...editForm } : e
+        )
+      );
+      setEditingEvent(null);
+    }
+    setEditSaving(false);
   };
 
   const openImageEditor = (eventId: string, currentUrl: string | null) => {
@@ -240,6 +271,9 @@ export default function EventsPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 items-center">
+                  <button onClick={() => openEditEvent(evt)} style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Edit
+                  </button>
                   {evt.event_type === 'broad' && (
                     <button onClick={() => imageEditor === evt.id ? setImageEditor(null) : openImageEditor(evt.id, evt.preview_image_url)} style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, color: evt.preview_image_url ? '#2E7D32' : 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer' }}>
                       {evt.preview_image_url ? 'Image ✓' : 'Image'}
@@ -253,6 +287,34 @@ export default function EventsPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Inline event editor */}
+              {editingEvent === evt.id && (
+                <div style={{ padding: '16px', marginTop: '4px', backgroundColor: '#F5F5F5', borderRadius: '10px', border: '1px solid #E0E0E0' }}>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, color: '#666', marginBottom: '8px' }}>
+                    Edit Event
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <select value={editForm.event_type} onChange={(e) => setEditForm((p) => ({ ...p, event_type: e.target.value }))} style={{ ...inputStyle, width: 'auto' }}>
+                        <option value="specific">Specific</option>
+                        <option value="broad">Broad</option>
+                      </select>
+                      <input value={editForm.date_display} onChange={(e) => setEditForm((p) => ({ ...p, date_display: e.target.value }))} placeholder="Date display" style={inputStyle} />
+                    </div>
+                    <input value={editForm.title} onChange={(e) => setEditForm((p) => ({ ...p, title: e.target.value }))} placeholder="Title" style={inputStyle} />
+                    <textarea value={editForm.preview_text} onChange={(e) => setEditForm((p) => ({ ...p, preview_text: e.target.value }))} placeholder="Card description" rows={3} style={{ ...inputStyle, resize: 'vertical' as const }} />
+                    <div className="flex gap-2">
+                      <button onClick={saveEditEvent} disabled={editSaving} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, padding: '8px 20px', borderRadius: '6px', backgroundColor: 'var(--color-primary)', color: '#fff', border: 'none', cursor: 'pointer', opacity: editSaving ? 0.5 : 1 }}>
+                        {editSaving ? 'Saving...' : 'Save'}
+                      </button>
+                      <button onClick={() => setEditingEvent(null)} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', padding: '8px 16px', borderRadius: '6px', border: '1px solid #ddd', cursor: 'pointer', backgroundColor: '#fff' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Inline image uploader for broad events */}
               {imageEditor === evt.id && evt.event_type === 'broad' && (

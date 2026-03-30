@@ -53,6 +53,14 @@ export default function TimelinePage() {
       .catch(() => setLoading(false));
   }, [slug]);
 
+  const entityCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    counts['Books'] = entities.filter((e) => e.entityType === 'book').length;
+    counts['Podcasts'] = entities.filter((e) => e.entityType === 'podcast').length;
+    counts['Movies'] = entities.filter((e) => e.entityType === 'movie').length;
+    return counts;
+  }, [entities]);
+
   const activeEntities = useMemo(() => {
     if (!activePill) return [];
     const typeMap: Record<string, string> = {
@@ -104,7 +112,7 @@ export default function TimelinePage() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <NavBar />
       <TimelineHeader timeline={timeline} />
-      <EntityPillBar activePill={activePill} onPillClick={handlePillClick} />
+      <EntityPillBar activePill={activePill} onPillClick={handlePillClick} counts={entityCounts} />
 
       {events.length > 0 ? (
         <TimelineEventList events={events} onExpandEvent={setSelectedEvent} />

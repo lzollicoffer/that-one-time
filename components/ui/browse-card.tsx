@@ -44,9 +44,14 @@ export function BrowseCard({
         {/* Image Container (~75% of card, ~294px) */}
         <div
           className="relative w-full overflow-hidden"
-          style={{ height: '294px', backgroundColor: '#d4d4d4' }}
+          style={{
+            height: '294px',
+            background: coverImageUrl
+              ? '#d4d4d4'
+              : 'linear-gradient(135deg, #3D1C0B 0%, #7D1F01 40%, #A85220 70%, #D4956A 100%)',
+          }}
         >
-          {/* Background Image — using img for external URLs */}
+          {/* Background Image — or warm gradient fallback when no image */}
           {coverImageUrl && (
             <img
               src={coverImageUrl}
@@ -59,8 +64,9 @@ export function BrowseCard({
           <div
             className="absolute inset-0"
             style={{
-              background:
-                'linear-gradient(0deg, rgba(107,1,9,0.6) 0%, transparent 60%)',
+              background: coverImageUrl
+                ? 'linear-gradient(0deg, rgba(107,1,9,0.6) 0%, transparent 60%)'
+                : 'linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 50%)',
             }}
           />
 

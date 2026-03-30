@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { TimelineEvent } from '@/types/timeline';
 import { BottomActionBar } from '@/components/ui/bottom-action-bar';
@@ -9,15 +9,11 @@ import { BottomActionBar } from '@/components/ui/bottom-action-bar';
  * Event Detail Bottom Sheet (Deep Dive) — That One Time
  * Design System §5.12:
  *
- * Full-screen bottom sheet triggered by "EXPAND DETAILS" on event card.
- * - Drag handle at top
- * - "DEEP DIVE" label
- * - Event title (Newsreader Regular 28px)
- * - Yellow bullet dots (#FFCC00, 24px) with content blocks
- * - Optional inline images with context labels
- * - Sticky bottom action bar
+ * - Opens at peek state (~40vh), scrolling content expands to ~85vh
+ * - Drag handle at top, swipe down to dismiss
+ * - "DEEP DIVE" label, event title, yellow bullet content
  *
- * Framer Motion: slide up, < 300ms, dismiss via swipe down or tap overlay.
+ * Framer Motion: slide up < 300ms, dismiss via swipe down or tap overlay.
  */
 
 interface EventDetailSheetProps {
@@ -34,10 +30,15 @@ export function EventDetailSheet({
   onNavigate,
 }: EventDetailSheetProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
 
+  // Reset to peek state on new event
   useEffect(() => {
-    if (event && contentRef.current) {
-      contentRef.current.scrollTop = 0;
+    if (event) {
+      setExpanded(false);
+      if (contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
     }
   }, [event]);
 
@@ -53,6 +54,13 @@ export function EventDetailSheet({
     };
   }, [event]);
 
+  // Expand when user scrolls within the sheet at peek state
+  const handleContentScroll = useCallback(() => {
+    if (!expanded && contentRef.current && contentRef.current.scrollTop > 10) {
+      setExpanded(true);
+    }
+  }, [expanded]);
+
   const currentIndex = event
     ? events.findIndex((e) => e.id === event.id)
     : -1;
@@ -60,10 +68,22 @@ export function EventDetailSheet({
   const hasNext = currentIndex < events.length - 1;
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.y > 100 || info.velocity.y > 500) {
-      onClose();
+    if (info.offset.y > 80 || info.velocity.y > 400) {
+      if (expanded) {
+        // Drag down from expanded → collapse to peek
+        setExpanded(false);
+        if (contentRef.current) contentRef.current.scrollTop = 0;
+      } else {
+        // Drag down from peek → dismiss
+        onClose();
+      }
+    } else if (info.offset.y < -50 || info.velocity.y < -300) {
+      // Drag up → expand
+      setExpanded(true);
     }
   };
+
+  const sheetHeight = expanded ? '85vh' : '45vh';
 
   return (
     <AnimatePresence>
@@ -86,8 +106,9 @@ export function EventDetailSheet({
             style={{
               backgroundColor: 'var(--color-surface)',
               borderRadius: '24px 24px 0 0',
+              height: sheetHeight,
               maxHeight: '95vh',
-              height: '95vh',
+              transition: 'height 250ms ease-out',
             }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -115,6 +136,7 @@ export function EventDetailSheet({
               ref={contentRef}
               className="flex-1 overflow-y-auto"
               style={{ padding: '0 24px' }}
+              onScroll={handleContentScroll}
             >
               {/* DEEP DIVE label */}
               <p
@@ -153,7 +175,6 @@ export function EventDetailSheet({
               <div className="flex flex-col" style={{ gap: '32px' }}>
                 {event.detailBullets.map((bullet) => (
                   <div key={bullet.id} className="flex items-start">
-                    {/* Yellow bullet dot */}
                     <div
                       className="shrink-0"
                       style={{
@@ -165,8 +186,6 @@ export function EventDetailSheet({
                         marginTop: '2px',
                       }}
                     />
-
-                    {/* Bullet text */}
                     <p
                       style={{
                         fontFamily: 'var(--font-body)',
@@ -251,13 +270,7 @@ export function EventDetailSheet({
                     }}
                   >
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none">
-                      <path
-                        d="M5 1L1 5L5 9"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
+                      <path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Previous
                   </button>
@@ -282,13 +295,7 @@ export function EventDetailSheet({
                   >
                     Next
                     <svg width="6" height="10" viewBox="0 0 6 10" fill="none">
-                      <path
-                        d="M1 1L5 5L1 9"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
+                      <path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </button>
                 ) : (

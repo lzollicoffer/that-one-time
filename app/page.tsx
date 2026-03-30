@@ -26,12 +26,12 @@ export default function LandingPage({
   return (
     <main className="relative w-full min-h-screen flex flex-col items-center bg-white overflow-hidden">
       {/* ── Hero Image Collage ── */}
-      <div className="relative w-full max-w-[390px] mx-auto" style={{ height: '560px' }}>
-        {/* Gray background that fades to white — matches design */}
+      <div className="relative w-full max-w-[390px] mx-auto" style={{ height: '620px' }}>
+        {/* Gray background that fades smoothly to white */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(180deg, #9A9A9A 0%, #B8B8B8 40%, #D4D4D4 65%, #FFFFFF 85%)',
+            background: 'linear-gradient(180deg, #8A8A8A 0%, #A0A0A0 25%, #B8B8B8 40%, #D0D0D0 55%, #E4E4E4 70%, #F2F2F2 82%, #FFFFFF 92%)',
           }}
         />
 
@@ -83,15 +83,15 @@ export default function LandingPage({
             bottom: '0px',
             left: '50%',
             transform: 'translateX(-55%)',
-            width: '300px',
-            height: '460px',
+            width: '320px',
+            height: '500px',
           }}
         >
           <Image
             src="/images/hero/thinker.png"
             alt="Rodin's Thinker statue — contemplating history"
-            width={300}
-            height={460}
+            width={320}
+            height={500}
             className="object-contain object-bottom"
             style={{ mixBlendMode: 'luminosity' }}
             priority
@@ -102,8 +102,8 @@ export default function LandingPage({
         <div
           className="absolute bottom-0 left-0 right-0 pointer-events-none"
           style={{
-            height: '200px',
-            background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0.85) 60%, #FFFFFF 100%)',
+            height: '240px',
+            background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.3) 25%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.92) 70%, #FFFFFF 100%)',
             zIndex: 25,
           }}
         />

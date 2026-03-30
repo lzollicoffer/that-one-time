@@ -12,11 +12,12 @@
 interface EntityPillBarProps {
   activePill: string | null;
   onPillClick: (pill: string) => void;
+  counts?: Record<string, number>;
 }
 
 const ENTITY_PILLS = ['Books', 'Podcasts', 'Movies'];
 
-export function EntityPillBar({ activePill, onPillClick }: EntityPillBarProps) {
+export function EntityPillBar({ activePill, onPillClick, counts = {} }: EntityPillBarProps) {
   return (
     <div
       className="sticky top-[64px] z-40 w-full flex justify-center"
@@ -49,7 +50,7 @@ export function EntityPillBar({ activePill, onPillClick }: EntityPillBarProps) {
               border: isActive ? 'none' : '1px solid rgba(0,0,0,0.1)',
             }}
           >
-            {pill}
+            {pill}{counts[pill] !== undefined && counts[pill] > 0 ? ` (${counts[pill]})` : ''}
           </button>
         );
       })}

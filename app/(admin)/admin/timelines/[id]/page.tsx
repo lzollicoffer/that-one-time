@@ -34,17 +34,33 @@ export default function EditTimelinePage() {
   const router = useRouter();
   const id = params.id as string;
 
+  const TAG_OPTIONS = ['tragic', 'inspiring', 'chill', 'recent'];
+
   const [form, setForm] = useState<TimelineData | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     fetch(`/api/admin/timelines/${id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setForm(data))
       .catch(() => {});
+    fetch(`/api/admin/timelines/${id}/tags`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((tags) => {
+        if (Array.isArray(tags)) setSelectedTags(tags);
+      })
+      .catch(() => {});
   }, [id]);
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+    setSaved(false);
+  };
 
   const updateField = (field: string, value: string) => {
     setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
@@ -64,6 +80,12 @@ export default function EditTimelinePage() {
     });
 
     if (res.ok) {
+      // Save tags
+      await fetch(`/api/admin/timelines/${id}/tags`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags: selectedTags }),
+      });
       setSaved(true);
     } else {
       const data = await res.json();
@@ -195,6 +217,35 @@ export default function EditTimelinePage() {
             <option value="archived">Archived</option>
           </select>
         </label>
+
+        {/* Category Tags */}
+        <div className="flex flex-col gap-1" style={{ marginTop: '8px' }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 600, color: '#666' }}>
+            Category Tags
+          </span>
+          <div className="flex gap-2 flex-wrap">
+            {TAG_OPTIONS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '13px',
+                  fontWeight: selectedTags.includes(tag) ? 700 : 400,
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  backgroundColor: selectedTags.includes(tag) ? 'var(--color-accent-yellow)' : '#fff',
+                  border: selectedTags.includes(tag) ? 'none' : '1px solid #ddd',
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Theme settings */}
         <h2 style={{ fontFamily: 'var(--font-body)', fontSize: '16px', fontWeight: 700, marginTop: '16px' }}>

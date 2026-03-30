@@ -64,7 +64,7 @@ export function EventCard({ event, onExpand }: EventCardProps) {
         {/* Image — broad events only, desaturated */}
         {isBroad && event.imageUrl && (
           <div
-            className="relative w-full overflow-hidden mb-4"
+            className="relative w-full overflow-hidden mb-6"
             style={{
               borderRadius: 'var(--radius-event-card-image)',
               height: '216px',
@@ -102,34 +102,36 @@ export function EventCard({ event, onExpand }: EventCardProps) {
           {event.cardDescription}
         </p>
 
-        {/* Expand Details CTA */}
-        <button
-          onClick={() => onExpand(event)}
-          className="flex items-center gap-1 mt-4 mx-auto transition-opacity active:opacity-70"
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '10px',
-            fontWeight: 700,
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
-            lineHeight: '15px',
-            color: 'var(--color-text-primary)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          Expand Details
-          <svg width="6" height="10" viewBox="0 0 6 10" fill="none">
-            <path
-              d="M1 1L5 5L1 9"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        {/* Expand Details CTA — centered */}
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => onExpand(event)}
+            className="flex items-center gap-1 transition-opacity active:opacity-70"
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              lineHeight: '15px',
+              color: 'var(--color-text-primary)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Expand Details
+            <svg width="6" height="10" viewBox="0 0 6 10" fill="none">
+              <path
+                d="M1 1L5 5L1 9"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
