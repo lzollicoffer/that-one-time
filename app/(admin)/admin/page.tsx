@@ -6,8 +6,15 @@ import { useEffect, useState } from 'react';
  * Admin Dashboard — That One Time
  * Story 5.1 — Content Dashboard
  *
- * Shows: total timelines by status, total events, total entities by type,
- * quick links to create timeline or manage entities.
+ * Fetches aggregate stats from /api/admin/dashboard which queries
+ * Supabase using the service role key (bypasses RLS):
+ *   - timelinesByStatus: count of timelines grouped by status (draft/published/unlisted/archived)
+ *   - totalEvents: total count across all events table rows
+ *   - entitiesByType: count of entities grouped by entity_type (book/podcast/movie)
+ *
+ * These are simple COUNT queries against the existing tables.
+ * No additional Supabase configuration needed beyond the env vars
+ * already set in .env.local.
  */
 
 interface DashboardStats {
@@ -49,9 +56,7 @@ export default function AdminDashboard() {
         </p>
       ) : !stats ? (
         <p style={{ fontFamily: 'var(--font-body)', color: '#666' }}>
-          Connect Supabase to view dashboard stats. Configure
-          NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in
-          .env.local.
+          Unable to load dashboard stats. Check the browser console for errors.
         </p>
       ) : (
         <>
@@ -71,10 +76,14 @@ export default function AdminDashboard() {
               Timelines
             </h2>
             <div className="flex gap-4 flex-wrap">
-              {Object.entries(stats.timelinesByStatus).map(
-                ([status, count]) => (
-                  <StatCard key={status} label={status} value={count} />
+              {Object.entries(stats.timelinesByStatus).length > 0 ? (
+                Object.entries(stats.timelinesByStatus).map(
+                  ([status, count]) => (
+                    <StatCard key={status} label={status} value={count} />
+                  )
                 )
+              ) : (
+                <StatCard label="Total" value={0} />
               )}
             </div>
           </div>
@@ -113,45 +122,17 @@ export default function AdminDashboard() {
               Entities
             </h2>
             <div className="flex gap-4 flex-wrap">
-              {Object.entries(stats.entitiesByType).map(([type, count]) => (
-                <StatCard key={type} label={type} value={count} />
-              ))}
+              {Object.entries(stats.entitiesByType).length > 0 ? (
+                Object.entries(stats.entitiesByType).map(([type, count]) => (
+                  <StatCard key={type} label={type} value={count} />
+                ))
+              ) : (
+                <StatCard label="Total" value={0} />
+              )}
             </div>
           </div>
         </>
       )}
-
-      {/* Quick links */}
-      <div className="flex gap-3 mt-8">
-        <a
-          href="/admin/timelines/new"
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '14px',
-            fontWeight: 700,
-            padding: '10px 20px',
-            borderRadius: '8px',
-            backgroundColor: 'var(--color-primary)',
-            color: '#FFFFFF',
-          }}
-        >
-          + New Timeline
-        </a>
-        <a
-          href="/admin/entities"
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '14px',
-            fontWeight: 500,
-            padding: '10px 20px',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            color: '#333',
-          }}
-        >
-          Manage Entities
-        </a>
-      </div>
     </div>
   );
 }

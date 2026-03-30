@@ -152,6 +152,20 @@ export default function AdminTimelinesPage() {
                   <option value="archived">Archived</option>
                 </select>
                 <Link
+                  href={`/admin/timelines/${t.id}`}
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: '#FFFFFF',
+                    backgroundColor: 'var(--color-primary)',
+                    padding: '6px 14px',
+                    borderRadius: '6px',
+                  }}
+                >
+                  Edit
+                </Link>
+                <Link
                   href={`/admin/timelines/${t.id}/events`}
                   style={{
                     fontFamily: 'var(--font-body)',

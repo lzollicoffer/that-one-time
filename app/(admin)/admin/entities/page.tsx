@@ -8,12 +8,18 @@ import Link from 'next/link';
  * Story 3.7: Global searchable entity list.
  */
 
+interface LinkedTimeline {
+  id: string;
+  title: string;
+}
+
 interface AdminEntity {
   id: string;
   entity_type: string;
   title: string;
   creator_name: string;
   created_at: string;
+  linked_timelines?: LinkedTimeline[];
 }
 
 export default function EntityLibraryPage() {
@@ -107,9 +113,43 @@ export default function EntityLibraryPage() {
                 </span>
                 <div>
                   <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 600 }}>{entity.title}</p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#999' }}>
-                    {entity.creator_name} &middot; ID: {entity.id.slice(0, 8)}...
-                  </p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#999' }}>
+                      {entity.creator_name}
+                    </span>
+                    {entity.linked_timelines && entity.linked_timelines.length > 0 ? (
+                      entity.linked_timelines.map((tl) => (
+                        <span
+                          key={tl.id}
+                          style={{
+                            fontFamily: 'var(--font-body)',
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            color: '#FFFFFF',
+                            backgroundColor: '#666',
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                          }}
+                        >
+                          {tl.title}
+                        </span>
+                      ))
+                    ) : (
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '10px',
+                          fontWeight: 600,
+                          color: '#999',
+                          backgroundColor: '#f0f0f0',
+                          padding: '2px 8px',
+                          borderRadius: '10px',
+                        }}
+                      >
+                        Unlinked
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2">

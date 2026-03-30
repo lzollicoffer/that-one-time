@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ImageUploader } from '@/components/admin/shared/image-uploader';
 
 /**
  * Create Timeline Page — Admin CMS
@@ -79,7 +80,11 @@ export default function NewTimelinePage() {
         </div>
         <FormField label="Browse Description" value={form.browse_description} onChange={(v) => updateField('browse_description', v)} multiline />
         <FormField label="Introduction (200-400 words)" value={form.introduction} onChange={(v) => updateField('introduction', v)} multiline rows={6} />
-        <FormField label="Cover Image URL" value={form.cover_image_url} onChange={(v) => updateField('cover_image_url', v)} />
+        <ImageUploader
+          label="Cover Image"
+          value={form.cover_image_url}
+          onChange={(v) => updateField('cover_image_url', v)}
+        />
 
         {error && (
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#D32F2F' }}>{error}</p>

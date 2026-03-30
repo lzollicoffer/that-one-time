@@ -1,27 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  if (!supabase) {
-    return { supabase: null, error: NextResponse.json({ error: 'Not configured' }, { status: 503 }) };
-  }
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return { supabase: null, error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
-  }
-
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (!profile || profile.role !== 'admin') {
-    return { supabase: null, error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
-  }
-
-  return { supabase, error: null };
-}
+import { getAdminClient } from '@/lib/supabase/admin-api';
 
 export async function GET() {
-  const { supabase, error } = await requireAdmin();
+  const { supabase, error } = getAdminClient();
   if (error) return error;
 
   const { data, error: queryError } = await supabase!
@@ -37,7 +18,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { supabase, error } = await requireAdmin();
+  const { supabase, error } = getAdminClient();
   if (error) return error;
 
   const body = await request.json() as Record<string, unknown>;

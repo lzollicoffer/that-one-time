@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 /**
@@ -8,10 +8,19 @@ import { useRouter } from 'next/navigation';
  * Story 3.1–3.3: Add book, podcast, or movie.
  */
 
+interface TimelineOption {
+  id: string;
+  title: string;
+}
+
 export default function NewEntityPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [timelines, setTimelines] = useState<TimelineOption[]>([]);
+  const [linkTimelineId, setLinkTimelineId] = useState('');
+  const [linkContextLine, setLinkContextLine] = useState('');
 
   const [form, setForm] = useState({
     entity_type: 'book',
@@ -23,6 +32,22 @@ export default function NewEntityPage() {
     duration: '',
     external_links: [{ platform: '', url: '' }],
   });
+
+  useEffect(() => {
+    fetch('/api/admin/timelines')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setTimelines(
+            data.map((t: { id: string; title: string }) => ({
+              id: t.id,
+              title: t.title.replace(/\n/g, ' '),
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const updateField = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -56,6 +81,21 @@ export default function NewEntityPage() {
     });
 
     if (res.ok) {
+      const entityData = await res.json();
+
+      // If a timeline was selected, link the entity to it
+      if (linkTimelineId && entityData.id) {
+        await fetch(`/api/admin/timelines/${linkTimelineId}/entities`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_id: entityData.id,
+            context_line: linkContextLine || 'Related content',
+            sort_order: 0,
+          }),
+        });
+      }
+
       router.push('/admin/entities');
     } else {
       const data = await res.json();
@@ -143,6 +183,65 @@ export default function NewEntityPage() {
           <button type="button" onClick={addLink} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 600, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px' }}>
             + Add Link
           </button>
+        </div>
+
+        {/* Link to Timeline */}
+        <div
+          style={{
+            padding: '16px',
+            borderRadius: '8px',
+            border: '1px solid #eee',
+            backgroundColor: '#fafafa',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#666',
+              display: 'block',
+              marginBottom: '8px',
+            }}
+          >
+            Link to Timeline (optional)
+          </span>
+          <select
+            value={linkTimelineId}
+            onChange={(e) => setLinkTimelineId(e.target.value)}
+            style={inputStyle}
+          >
+            <option value="">None — add to library only</option>
+            {timelines.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.title}
+              </option>
+            ))}
+          </select>
+
+          {linkTimelineId && (
+            <div style={{ marginTop: '8px' }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#666',
+                  display: 'block',
+                  marginBottom: '4px',
+                }}
+              >
+                Why this matters here *
+              </span>
+              <input
+                type="text"
+                placeholder="e.g. Essential reading for understanding the conflict"
+                value={linkContextLine}
+                onChange={(e) => setLinkContextLine(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+          )}
         </div>
 
         {error && <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#D32F2F' }}>{error}</p>}

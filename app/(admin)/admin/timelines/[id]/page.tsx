@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ImageUploader } from '@/components/admin/shared/image-uploader';
 
 /**
  * Edit Timeline Page — Admin CMS
@@ -178,10 +179,11 @@ export default function EditTimelinePage() {
           <textarea value={form.introduction || ''} onChange={(e) => updateField('introduction', e.target.value)} rows={6} style={{ ...inputStyle, resize: 'vertical' }} />
         </label>
 
-        <label className="flex flex-col gap-1">
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 600, color: '#666' }}>Cover Image URL</span>
-          <input type="text" value={form.cover_image_url || ''} onChange={(e) => updateField('cover_image_url', e.target.value)} style={inputStyle} />
-        </label>
+        <ImageUploader
+          label="Cover Image"
+          value={form.cover_image_url || ''}
+          onChange={(v) => updateField('cover_image_url', v)}
+        />
 
         {/* Status */}
         <label className="flex flex-col gap-1">
