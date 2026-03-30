@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ========================================================================
+     BRAND COLORS
+     ======================================================================== */
+  --color-primary: #7d1f01;
+  --color-primary-dark: #6b0109;
+  --color-primary-cta: #5a1a00;
+  --color-accent-yellow: #ffcc00;
+
+  /* ========================================================================
+     NEUTRAL / SURFACE COLORS
+     ======================================================================== */
+  --color-background: #f6f6f6;
+  --color-surface: #ffffff;
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #1a1c1b;
+  --color-text-body: #58413f;
+  --color-text-muted: rgba(60, 60, 67, 0.6);
+  --color-divider: rgba(125, 31, 0, 0.2);
+  --color-node: #e8e8e6;
+  --color-drag-handle: #c4c4c4;
+  --color-card-border: rgba(0, 0, 0, 0.06);
+  --color-overlay-dark: rgba(0, 0, 0, 0.3);
+  --color-nav-background: rgba(255, 255, 255, 1);
+
+  /* ========================================================================
+     TYPOGRAPHY
+     ======================================================================== */
+  --font-display: "Philosopher", serif;
+  --font-date: "Newsreader", serif;
+  --font-heading: "Work Sans", sans-serif;
+  --font-body: "Manrope", sans-serif;
+
+  /* ========================================================================
+     SPACING & LAYOUT
+     ======================================================================== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 40px;
+  --spacing-page-horizontal: 30px;
+  --spacing-page-horizontal-nav: 24px;
+
+  /* ========================================================================
+     BORDER RADIUS
+     ======================================================================== */
+  --radius-event-card: 48px;
+  --radius-event-card-image: 26px;
+  --radius-browse-card: 28px;
+  --radius-bottom-sheet: 24px;
+  --radius-entity-card: 20px;
+  --radius-entity-card-image: 12px;
+  --radius-pill: 44px;
+  --radius-rounded: 16px;
+
+  /* ========================================================================
+     SHADOWS
+     ======================================================================== */
+  --shadow-nav-bar: 0px 0px 32px rgba(50, 50, 50, 0.06);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utilities */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-body {
+  color: var(--color-text-body);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
 }

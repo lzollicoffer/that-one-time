@@ -1,65 +1,179 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import Image from 'next/image';
+import Link from 'next/link';
+
+/**
+ * Landing Page — That One Time
+ * Epic 1, Story 1.1 — Browse Timeline Catalog
+ *
+ * Acceptance Criteria:
+ * - "Explore" CTA on landing screen leads to /browse
+ * - Shows app branding (name, tagline)
+ * - Displays total timeline count
+ *
+ * Design Reference: docs/design/Landing Page.png
+ * Hero composition: Thinker (center), Globe+temple (top-right), Explosion (right)
+ */
+
+interface LandingPageProps {
+  totalTimelines?: number;
+}
+
+export default function LandingPage({
+  totalTimelines = 5,
+}: LandingPageProps) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="relative w-full min-h-screen flex flex-col items-center bg-white overflow-hidden">
+      {/* ── Hero Image Collage ── */}
+      <div className="relative w-full max-w-[390px] mx-auto" style={{ height: '560px' }}>
+        {/* Gray background that fades to white — matches design */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(180deg, #9A9A9A 0%, #B8B8B8 40%, #D4D4D4 65%, #FFFFFF 85%)',
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+
+        {/* Globe + Temple — top-left, large, partially clipped */}
+        <div
+          className="absolute z-10"
+          style={{
+            top: '-20px',
+            left: '-40px',
+            width: '320px',
+            height: '320px',
+          }}
+        >
+          <Image
+            src="/images/hero/globe.png"
+            alt="Globe with ancient temple and book — representing world history"
+            width={320}
+            height={320}
+            className="object-cover"
+            style={{ borderRadius: '0 0 160px 0' }}
+            priority
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Explosion — right side, behind thinker */}
+        <div
+          className="absolute z-10"
+          style={{
+            top: '160px',
+            right: '-10px',
+            width: '160px',
+            height: '160px',
+          }}
+        >
+          <Image
+            src="/images/hero/explosion.png"
+            alt="Mushroom cloud — representing pivotal moments in history"
+            width={160}
+            height={160}
+            className="object-contain"
+            priority
+          />
         </div>
-      </main>
-    </div>
+
+        {/* Thinker — center, dominant, in front */}
+        <div
+          className="absolute z-20"
+          style={{
+            bottom: '0px',
+            left: '50%',
+            transform: 'translateX(-55%)',
+            width: '300px',
+            height: '460px',
+          }}
+        >
+          <Image
+            src="/images/hero/thinker.png"
+            alt="Rodin's Thinker statue — contemplating history"
+            width={300}
+            height={460}
+            className="object-contain object-bottom"
+            style={{ mixBlendMode: 'luminosity' }}
+            priority
+          />
+        </div>
+
+        {/* Bottom fade from hero to white content area */}
+        <div
+          className="absolute bottom-0 left-0 right-0 pointer-events-none"
+          style={{
+            height: '120px',
+            background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.6) 50%, #FFFFFF 100%)',
+            zIndex: 25,
+          }}
+        />
+      </div>
+
+      {/* ── Text Content ── */}
+      <div className="relative z-30 flex flex-col items-center px-8 text-center mt-2">
+        {/* App Name — Philosopher Bold, 48px */}
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '48px',
+            lineHeight: '1.1',
+            letterSpacing: '-0.85px',
+            fontWeight: 700,
+            color: 'var(--color-text-primary)',
+          }}
+        >
+          That One Time
+        </h1>
+
+        {/* Tagline — Manrope Light, 20px */}
+        <p
+          className="max-w-[325px] mt-4"
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '20px',
+            lineHeight: '32px',
+            letterSpacing: '-0.85px',
+            fontWeight: 300,
+            color: 'var(--color-text-primary)',
+          }}
+        >
+          An evolving collection of big and small moments.
+        </p>
+
+        {/* Timeline Counter — Manrope Regular, 16px */}
+        <p
+          className="mt-3"
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '16px',
+            lineHeight: '32px',
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+          }}
+        >
+          Total Timelines: {totalTimelines}
+        </p>
+
+        {/* EXPLORE CTA Button */}
+        <Link
+          href="/browse"
+          className="mt-8 mb-8 inline-flex items-center justify-center transition-opacity hover:opacity-90 active:opacity-70"
+          style={{
+            backgroundColor: 'var(--color-primary)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '16px',
+            letterSpacing: '1.2px',
+            fontWeight: 400,
+            color: '#FFFFFF',
+            textTransform: 'uppercase',
+            width: '335px',
+            height: '51px',
+            borderRadius: '87px',
+          }}
+        >
+          Explore
+        </Link>
+      </div>
+    </main>
   );
 }
