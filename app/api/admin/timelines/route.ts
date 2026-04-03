@@ -5,10 +5,20 @@ export async function GET() {
   const { supabase, error } = getAdminClient();
   if (error) return error;
 
-  const { data, error: queryError } = await supabase!
+  // Try sort_order first; fall back to created_at if column doesn't exist yet
+  let { data, error: queryError } = await supabase!
     .from('timelines')
     .select('*')
-    .order('updated_at', { ascending: false });
+    .order('sort_order', { ascending: true });
+
+  if (queryError && queryError.code === '42703') {
+    const fallback = await supabase!
+      .from('timelines')
+      .select('*')
+      .order('created_at', { ascending: true });
+    data = fallback.data;
+    queryError = fallback.error;
+  }
 
   if (queryError) {
     return NextResponse.json({ error: queryError.message }, { status: 500 });

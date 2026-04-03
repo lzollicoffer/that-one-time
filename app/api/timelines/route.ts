@@ -17,13 +17,24 @@ export async function GET() {
 
   const supabase = createClient(url, key);
 
-  const { data: timelines, error } = await supabase
+  // Try sort_order first; fall back to created_at if column doesn't exist yet
+  let { data: timelines, error } = await supabase
     .from('timelines')
     .select('id, title, slug, time_span_start, time_span_end, browse_description, cover_image_url, status, event_count')
     .eq('status', 'published')
-    .order('created_at', { ascending: true });
+    .order('sort_order', { ascending: true });
 
-  if (error) {
+  if (error && error.code === '42703') {
+    const fallback = await supabase
+      .from('timelines')
+      .select('id, title, slug, time_span_start, time_span_end, browse_description, cover_image_url, status, event_count')
+      .eq('status', 'published')
+      .order('created_at', { ascending: true });
+    timelines = fallback.data;
+    error = fallback.error;
+  }
+
+  if (error || !timelines) {
     return NextResponse.json([]);
   }
 
